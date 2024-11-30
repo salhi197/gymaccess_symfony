@@ -1,13 +1,13 @@
 <?php
-
+// src/Entity/User.php
 namespace App\Entity;
 
-use App\Repository\UserRepository;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: '`user`')]
-class User
+#[ORM\Entity]
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -18,34 +18,105 @@ class User
     private ?string $email = null;
 
     #[ORM\Column(type: 'string')]
-    private ?string $nom = null;
-
-    #[ORM\Column(type: 'string')]
     private ?string $password = null;
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $password_text = null;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $passwordText = null;  // For storing plain password temporarily
 
-    #[ORM\Column(type: 'datetime')]
-    private ?\DateTimeInterface $created_at = null;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $photo = null;  // For storing photo file path or URL
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $updated_at = null;
+    #[ORM\Column(type: 'integer')]
+    private ?int $grade = null;  // For storing user's grade (e.g., student, employee level)
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $photo = null;
+    #[ORM\Column(type: 'json')]
+    private array $roles = [];
 
-    // Implémentation des méthodes de UserInterface
-    public function getRoles(): array
+    public function getId(): ?int
     {
-        return ['ROLE_USER'];
+        return $this->id;
     }
 
-    public function eraseCredentials() {}
-    public function getSalt() {}
-    public function getUsername(): string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
 
+    public function setEmail(string $email): self
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function getRoles(): array
+    {
+        return $this->roles ?: ['ROLE_USER'];
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): self
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    public function getPasswordText(): ?string
+    {
+        return $this->passwordText;
+    }
+
+    public function setPasswordText(string $passwordText): self
+    {
+        $this->passwordText = $passwordText;
+
+        return $this;
+    }
+
+    public function getPhoto(): ?string
+    {
+        return $this->photo;
+    }
+
+    public function setPhoto(?string $photo): self
+    {
+        $this->photo = $photo;
+
+        return $this;
+    }
+
+    public function getGrade(): ?int
+    {
+        return $this->grade;
+    }
+
+    public function setGrade(int $grade): self
+    {
+        $this->grade = $grade;
+
+        return $this;
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->email;
+    }
+
+    public function eraseCredentials(): void
+    {
+        // Clear sensitive data if necessary
+        $this->passwordText = null;
+    }
 }
